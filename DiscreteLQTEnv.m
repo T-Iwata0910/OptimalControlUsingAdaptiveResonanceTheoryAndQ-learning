@@ -4,26 +4,13 @@ classdef DiscreteLQTEnv < rl.env.MATLABEnvironment
     %% Properties (set properties' attributes accordingly)
     properties
         % Specify and initialize environment's necessary properties    
-%         % System Dynamics
-%         A;
-%         B;
-%         C;
-%         
-%         % Reference Dynamics
-%         F;
-%         
         % Augument System
         T;
         B1;
         
-%         % Reward Dynamics
-%         Q;
-%         R;
-        
         % Augument reward
         Q1;
         R;
-        
     end
     
     properties
@@ -41,11 +28,16 @@ classdef DiscreteLQTEnv < rl.env.MATLABEnvironment
     methods              
         % Contructor method creates an instance of the environment
         % Change class name and constructor name accordingly
-        function this = DiscreteLQTEnv(Ad, Bd, Cd, Fd, Q, R, x0)
-            
+        function this = DiscreteLQTEnv(Ad, Bd, Cd, Fd, Q, R, varargin)
+            % input parser
+            obsDim = size(Ad, 2) + size(Fd, 2);
+            checkX0 = @(x) size(x, 1) == obsDim;
+            p = inputParser();
+            addOptional(p, 'x0', [], checkX0);
+            parse(p, varargin{:});
             
             % Initialize Observation settings
-            obsDim = size(Ad, 2) + size(Fd, 2);
+            
             ObservationInfo = rlNumericSpec([obsDim 1]);
             ObservationInfo.Name = 'Augument States of system dynamics and references';
             ObservationInfo.Description = 'x, r';
@@ -58,19 +50,11 @@ classdef DiscreteLQTEnv < rl.env.MATLABEnvironment
             % The following line implements built-in functions of RL env
             this = this@rl.env.MATLABEnvironment(ObservationInfo,ActionInfo);
             
-            % Initialize Dynamics of System
-%             this.A = A;
-%             this.B = B;
-%             this.C = C;
-%             this.F = F;
-%             this.Q = Q;
-%             this.R = R;
-            
             % Initialize augument system dynamics
             this.T = blkdiag(Ad, Fd);
             this.B1 = [Bd; zeros(size(Fd, 1), size(Bd, 2))];
             this.State = zeros(size(this.T, 1), 1);
-            this.initState = x0;
+            this.initState = p.Results.x0;
             
             % Initialize reward function parameter
             C1 = [Cd -eye(size(Cd, 1))];
@@ -101,9 +85,13 @@ classdef DiscreteLQTEnv < rl.env.MATLABEnvironment
         end
         
         % Reset environment to initial state and output initial observation
-        function InitialObservation = reset(this)
-            InitialObservation = this.initState;
-            this.State = InitialObservation;
+        function initialObservation = reset(this)
+            if isempty(this.initState)
+                initialObservation = rand(size(this.State, 1), 1);
+            else
+                initialObservation = this.initState;
+            end
+            this.State = initialObservation;
             
             % (optional) use notifyEnvUpdated to signal that the 
             % environment has been updated (e.g. to update visualization)
@@ -119,17 +107,6 @@ classdef DiscreteLQTEnv < rl.env.MATLABEnvironment
             % Update the visualization
             envUpdatedCallback(this)
         end
-        
-        % (optional) Properties validation through set methods
-%         function set.State(this,state)
-%             validateattributes(state,{'numeric'},{'finite','real','vector','numel',4},'','State');
-%             this.State = double(state(:));
-%             notifyEnvUpdated(this);
-%         end
-%         function set.Ts(this,val)
-%             validateattributes(val,{'numeric'},{'finite','real','positive','scalar'},'','Ts');
-%             this.Ts = val;
-%         end
     end
     
     methods (Access = protected)
