@@ -42,6 +42,7 @@ classdef LQTAgent < rl.agent.CustomAgent
     end
     
     properties (Access = private)
+        stepMode
         Counter = 1
         YBuffer
         HBuffer 
