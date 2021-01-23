@@ -1,3 +1,9 @@
 [submodule "libs/rlMultipleEnvironment"]
 	path = libs/rlMultipleEnvironment
 	url = https://github.com/T-Iwata0910/rlMultipleEnvironmet.git
+[submodule "libs/rlDiscreteLQT"]
+	path = libs/rlDiscreteLQT
+	url = https://github.com/T-Iwata0910/RLDiscreteLQT.git
+[submodule "libs/DataLogger"]
+	path = libs/DataLogger
+	url = https://github.com/T-Iwata0910/DataLogger.git
