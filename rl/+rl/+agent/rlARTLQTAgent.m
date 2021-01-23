@@ -20,7 +20,7 @@ classdef rlARTLQTAgent < rl.agent.AbstractAgent
         KBuffer (1, 1) DataLogger
     end
     
-    properties (Access = private)
+    properties %(Access = private)
         AgentOptions_ = []
         
         % Circular buffer
@@ -244,8 +244,8 @@ classdef rlARTLQTAgent < rl.agent.AbstractAgent
                 
                 this.W(:, this.F==0) = [];  % remove colum (c.f. table 1 l.8)
                 this.Tau(this.F==0) = [];
-                this.F(this.F==0) = [];
                 this.Critic(this.F==0) = [];
+                this.F(this.F==0) = [];
                 
                 v  = this.W' * d / norm(this.W' * d);  % (c.f. table 1 l.9)
                 
@@ -271,7 +271,7 @@ classdef rlARTLQTAgent < rl.agent.AbstractAgent
                         this.W(:, end+1) = d;
                         this.Tau(end+1) = 0;
                         this.F(end+1) = this.Lambda;
-                        this.Critic{end+1} = createCritic(this);
+%                         this.Critic{end+1} = createCritic(this);
                         break;
                     end
                 end
@@ -312,6 +312,9 @@ classdef rlARTLQTAgent < rl.agent.AbstractAgent
             % experiences
             theta = pinv(hBuf)*yBuf;
             for i = 1 : length(this.v)
+                if length(this.Critic) < i
+                    this.Critic{i} = createCritic(this);
+                end
                 this.Critic{i} = setLearnableParameterValues(this.Critic{i}, {this.v(i) * theta});
             end
 
@@ -322,7 +325,7 @@ classdef rlARTLQTAgent < rl.agent.AbstractAgent
         function k = getPolicy(this)
             theta = getLearnableParameterValues(this.Critic{1});
             w = zeros(size(theta));
-            for i = 1 : length(this.v)
+            for i = 1 : length(this.Critic)
                 theta = getLearnableParameterValues(this.Critic{i});
                 w = w + this.v(i) * theta{:};
             end
