@@ -123,6 +123,8 @@ classdef rlARTLQTAgent < rl.agent.AbstractAgent
             this.Lambda = NewOptions.Lambda;
             this.Rho = NewOptions.Rho;
             this.Kappa = NewOptions.Kappa;
+            this.Nu = NewOptions.Nu;
+            this.Alpha = NewOptions.Alpha;
             this.DeltaX = NewOptions.DeltaX;
             this.DeltaU = NewOptions.DeltaU;
             
